@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:turath_hackathon/screens/leaderboard_screen.dart';
 import 'package:turath_hackathon/screens/main_screen.dart';
 import 'services/notification_service.dart';
 
 void main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
@@ -24,7 +24,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: const MainScreen(),
-      navigatorKey: navigatorKey, // هنا السحر! لازم تشغل MainScreen
     );
   }
 }

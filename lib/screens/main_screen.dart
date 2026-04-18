@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+// استيراد الشاشات الأربعة
+import 'leaderboard_screen.dart';
 import 'home_screen.dart';
 import 'stats_screen.dart';
 import 'settings_screen.dart';
@@ -12,35 +14,32 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final Color bgColor = const Color(0xFFF1F3F4);
-  int currentIndex = 1;
+  int currentIndex = 1; // نبدأ من شاشة الهوم (الرئيسية)
 
+  // القائمة النهائية للشاشات المربوطة
   final List<Widget> screens = [
-    const Center(
-      child: Text(
-        "شاشة المتصدرين (قريباً)",
-        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-      ),
-    ),
-    const HomeScreen(),
-    const StatsScreen(),
-    const SettingsScreen(),
+    const LeaderboardScreen(), // شاشة المتصدرين (بدل نص قريباً)
+    const HomeScreen(), // شاشة اللعب/الخريطة
+    const StatsScreen(), // شاشة الإحصائيات (الجريدينت)
+    const SettingsScreen(), // شاشة الإعدادات
   ];
 
   @override
   Widget build(BuildContext context) {
-    // رجعناه RTL عشان اللوجو واللغة يضبطون (سياق تنقرأ من اليمين)
+    // دعم اللغة العربية والاتجاه من اليمين لليسار
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: bgColor,
         body: Column(
           children: [
+            // منطقة عرض الشاشات
             Expanded(
               flex: 17,
               child: IndexedStack(index: currentIndex, children: screens),
             ),
 
-            // البار السفلي - الحين بيترتب صح (المصدرين يمين والإعدادات يسار)
+            // البار السفلي بستايل النيوبتروتاليست المعتمد
             Expanded(
               flex: 3,
               child: Container(
@@ -85,6 +84,9 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
+// ---------------------------------------------------------
+// ودجت الأزرار التفاعلية للبار السفلي
+// ---------------------------------------------------------
 class InteractiveBottomButton extends StatefulWidget {
   final IconData icon;
   final String label;
@@ -133,27 +135,38 @@ class _InteractiveBottomButtonState extends State<InteractiveBottomButton> {
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 150),
-            width: 75,
-            height: 75,
+            width: 70, // صغرنا الحجم شوي عشان يضبط في كل الشاشات
+            height: 70,
             decoration: BoxDecoration(
               color: buttonBgColor,
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: BorderRadius.circular(18),
               border: Border.all(color: const Color(0xFF1E1E1E), width: 2.5),
+              // تأثير الظل المعتمد في اللعبة
+              boxShadow: activeState
+                  ? []
+                  : const [
+                      BoxShadow(color: Color(0xFF1E1E1E), offset: Offset(3, 3)),
+                    ],
             ),
             padding: const EdgeInsets.all(4),
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF1E1E1E), width: 2.5),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: activeState
+                      ? Colors.white.withOpacity(0.3)
+                      : const Color(0xFF1E1E1E),
+                  width: 2,
+                ),
               ),
-              child: Icon(widget.icon, color: contentColor, size: 35),
+              child: Icon(widget.icon, color: contentColor, size: 30),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             widget.label,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 12,
               fontWeight: FontWeight.w900,
               color: widget.isActive
                   ? const Color(0xFF1E1E1E)
