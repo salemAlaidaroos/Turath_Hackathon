@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:turath_hackathon/screens/free_play_screen.dart';
+// import 'free_play_screen.dart'; // تأكد من فك الكومنت لو الملف موجود
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   final Color primaryYellow = const Color(0xFFFFC828);
-  final Color bgColor = const Color(0xFFF1F3F4);
   final Color textColor = const Color(0xFF1E1E1E);
 
   @override
   Widget build(BuildContext context) {
+    // استخدمنا الـ Scaffold والـ Column هنا عشان نضمن إن المحتوى ما يضيع
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: const Color(0xFFF1F3F4), // لون الخلفية الرمادي تحت
       body: Column(
         children: [
-          // 1. القسم العلوي الأصفر (تم زيادة الـ flex من 8 إلى 17 لزيادة الطول)
           Expanded(
-            flex: 17,
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -32,22 +32,9 @@ class HomeScreen extends StatelessWidget {
                 ),
                 child: Stack(
                   children: [
-                    // طبقة الزخرفة (يمين)
-                    // Positioned(
-                    //   right: -35,
-                    //   top: 0,
-                    //   bottom: 0,
-                    //   child: Opacity(
-                    //     opacity: 0.7,
-                    //     child: Image.asset(
-                    //       'assets/images/side_border_r.png',
-                    //       fit: BoxFit.fitHeight,
-                    //     ),
-                    //   ),
-                    // ),
-                    // طبقة الزخرفة (يسار)
+                    // السدو (يسار)
                     Positioned(
-                      left: -25,
+                      left: -30,
                       top: 0,
                       bottom: 0,
                       child: Opacity(
@@ -58,13 +45,12 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-
-                    // طبقة المحتوى الأساسي (اللوجو والأزرار)
+                    // المحتوى
                     SafeArea(
                       child: Column(
                         children: [
                           const SizedBox(height: 50),
-                          // اللوجو (س ي ا ق)
+                          // اللوجو
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -101,11 +87,10 @@ class HomeScreen extends StatelessWidget {
                               fontSize: 28,
                               fontWeight: FontWeight.w900,
                               color: textColor,
-                              letterSpacing: 1.2,
                             ),
                           ),
                           const SizedBox(height: 30),
-                          // أزرار أطوار اللعب
+                          // القائمة
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
@@ -126,8 +111,17 @@ class HomeScreen extends StatelessWidget {
                                   const SizedBox(height: 25),
                                   NeobrutalistCard(
                                     title: "اللعب الحر",
-                                    onTap: () {},
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const FreePlayScreen(),
+                                        ),
+                                      );
+                                    },
                                   ),
+                                  const SizedBox(height: 20),
                                 ],
                               ),
                             ),
@@ -140,41 +134,8 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // 2. القسم السفلي الأبيض (تم تعديل الـ flex من 2 إلى 3 ليتناسب مع التغيير)
-          Expanded(
-            flex: 3,
-            child: Container(
-              color: bgColor,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  InteractiveBottomButton(
-                    icon: Icons.leaderboard_rounded,
-                    label: "المتصدرين",
-                    onTap: () {},
-                  ),
-                  InteractiveBottomButton(
-                    icon: Icons.play_arrow_rounded,
-                    label: "الرئيسية",
-                    onTap: () {},
-                  ),
-                  InteractiveBottomButton(
-                    icon: Icons.bar_chart_rounded,
-                    label: "الإحصائيات",
-                    onTap: () {},
-                  ),
-                  InteractiveBottomButton(
-                    icon: Icons.settings_outlined,
-                    label: "الإعدادات",
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
-          ),
+          // تركنا مساحة وهمية هنا عشان ما يغطي عليها البار السفلي في الـ MainScreen
+          const SizedBox(height: 0),
         ],
       ),
     );
@@ -217,16 +178,13 @@ class HomeScreen extends StatelessWidget {
 class NeobrutalistCard extends StatefulWidget {
   final String title;
   final VoidCallback onTap;
-
   const NeobrutalistCard({super.key, required this.title, required this.onTap});
-
   @override
   State<NeobrutalistCard> createState() => _NeobrutalistCardState();
 }
 
 class _NeobrutalistCardState extends State<NeobrutalistCard> {
   bool isPressed = false;
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -266,74 +224,6 @@ class _NeobrutalistCardState extends State<NeobrutalistCard> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class InteractiveBottomButton extends StatefulWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const InteractiveBottomButton({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  State<InteractiveBottomButton> createState() =>
-      _InteractiveBottomButtonState();
-}
-
-class _InteractiveBottomButtonState extends State<InteractiveBottomButton> {
-  bool isHovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color activeColor = isHovered
-        ? const Color(0xFF1E1E1E)
-        : Colors.white;
-    final Color contentColor = isHovered
-        ? Colors.white
-        : const Color(0xFF1E1E1E);
-
-    return GestureDetector(
-      onTapDown: (_) => setState(() => isHovered = true),
-      onTapUp: (_) {
-        setState(() => isHovered = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => isHovered = false),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            width: 75,
-            height: 75,
-            decoration: BoxDecoration(
-              color: activeColor,
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: const Color(0xFF1E1E1E), width: 2.5),
-            ),
-            padding: const EdgeInsets.all(4),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF1E1E1E), width: 2.5),
-              ),
-              child: Icon(widget.icon, color: contentColor, size: 35),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            widget.label,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
-          ),
-        ],
       ),
     );
   }

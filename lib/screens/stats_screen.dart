@@ -3,202 +3,154 @@ import 'package:flutter/material.dart';
 class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
 
-  final Color primaryYellow = const Color(0xFFFFC828);
-  final Color bgColor = const Color(0xFFF1F3F4);
   final Color textColor = const Color(0xFF1E1E1E);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: bgColor,
-      body: Column(
-        children: [
-          // 1. القسم العلوي (الإحصائيات مع التدرج المعزز)
-          Expanded(
-            flex: 17,
-            child: Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: RadialGradient(
-                  colors: [
-                    Color(0xFFFFFDE7), // المركز: أصفر فاتح جداً (قريب للأبيض)
-                    Color(0xFFFFC828), // الوسط: الأصفر الأساسي حقنا
-                    Color(0xFFF57F17), // الأطراف: ذهبي/عسلي غامق (يعطي العمق)
-                  ],
-                  stops: [0.1, 0.6, 1.0], // توزيع الألوان عشان يبرز المركز
-                  center: Alignment.center,
-                  radius: 1.0,
-                ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(100),
-                  bottomRight: Radius.circular(100),
-                ),
-              ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 50),
+    // نرجع حاوي (Container) مباشرة بدال الـ Scaffold والـ Column المعقدة
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: RadialGradient(
+          colors: [
+            Color(0xFFFFFDE7), // المركز فاتح
+            Color(0xFFFFC828), // الوسط أصفر
+            Color(0xFFF57F17), // الأطراف عسلي للعمق
+          ],
+          stops: [0.1, 0.6, 1.0],
+          center: Alignment.center,
+          radius: 1.0,
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(100),
+          bottomRight: Radius.circular(100),
+        ),
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: Column(
+            children: [
+              const SizedBox(height: 50),
 
-                      Expanded(
-                        child: ListView(
-                          physics: const BouncingScrollPhysics(),
-                          children: [
-                            // --- القسم الأول: الخلاصة السريعة ---
-                            const Text(
-                              "خلاصة الأداء:",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            const OverviewCard(),
-
-                            const SizedBox(height: 25),
-
-                            // --- القسم الثاني: إتقان المناطق ---
-                            const Text(
-                              "إتقان المناطق:",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Container(
-                              padding: const EdgeInsets.all(15),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: textColor,
-                                  width: 2.5,
-                                ),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color(0xFF1E1E1E),
-                                    offset: Offset(4, 4),
-                                  ),
-                                ],
-                              ),
-                              child: const Column(
-                                children: [
-                                  NeobrutalistProgressBar(
-                                    label: "نجد",
-                                    percentage: 0.85,
-                                    barColor: Color(0xFF4CAF50),
-                                  ),
-                                  SizedBox(height: 15),
-                                  NeobrutalistProgressBar(
-                                    label: "الحجاز",
-                                    percentage: 0.50,
-                                    barColor: Color(0xFFFF9800),
-                                  ),
-                                  SizedBox(height: 15),
-                                  NeobrutalistProgressBar(
-                                    label: "الجنوب",
-                                    percentage: 0.30,
-                                    barColor: Color(0xFFFF1744),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            const SizedBox(height: 25),
-
-                            // --- القسم الثالث: الانتصارات حسب الصعوبة ---
-                            const Text(
-                              "الانتصارات حسب الصعوبة:",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            const Row(
-                              children: [
-                                Expanded(
-                                  child: DifficultyStatCard(
-                                    title: "سهل",
-                                    count: "42",
-                                    color: Color(0xFF4CAF50),
-                                  ),
-                                ),
-                                SizedBox(width: 12),
-                                Expanded(
-                                  child: DifficultyStatCard(
-                                    title: "متوسط",
-                                    count: "15",
-                                    color: Color(0xFFFF9800),
-                                  ),
-                                ),
-                                SizedBox(width: 12),
-                                Expanded(
-                                  child: DifficultyStatCard(
-                                    title: "صعب",
-                                    count: "3",
-                                    color: Color(0xFFFF1744),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 30),
-                          ],
-                        ),
+              // محتوى الإحصائيات داخل قائمة قابلة للتمرير
+              Expanded(
+                child: ListView(
+                  physics: const BouncingScrollPhysics(),
+                  children: [
+                    // --- القسم الأول: الخلاصة السريعة ---
+                    const Text(
+                      "خلاصة الأداء:",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 12),
+                    const OverviewCard(),
+
+                    const SizedBox(height: 25),
+
+                    // --- القسم الثاني: إتقان المناطق ---
+                    const Text(
+                      "إتقان المناطق:",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: textColor, width: 2.5),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0xFF1E1E1E),
+                            offset: Offset(4, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Column(
+                        children: [
+                          NeobrutalistProgressBar(
+                            label: "نجد",
+                            percentage: 0.85,
+                            barColor: Color(0xFF4CAF50),
+                          ),
+                          SizedBox(height: 15),
+                          NeobrutalistProgressBar(
+                            label: "الحجاز",
+                            percentage: 0.50,
+                            barColor: Color(0xFFFF9800),
+                          ),
+                          SizedBox(height: 15),
+                          NeobrutalistProgressBar(
+                            label: "الجنوب",
+                            percentage: 0.30,
+                            barColor: Color(0xFFFF1744),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    // --- القسم الثالث: الانتصارات حسب الصعوبة ---
+                    const Text(
+                      "الانتصارات حسب الصعوبة:",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Row(
+                      children: [
+                        Expanded(
+                          child: DifficultyStatCard(
+                            title: "سهل",
+                            count: "42",
+                            color: Color(0xFF4CAF50),
+                          ),
+                        ),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: DifficultyStatCard(
+                            title: "متوسط",
+                            count: "15",
+                            color: Color(0xFFFF9800),
+                          ),
+                        ),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: DifficultyStatCard(
+                            title: "صعب",
+                            count: "3",
+                            color: Color(0xFFFF1744),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+                  ],
                 ),
               ),
-            ),
+            ],
           ),
-
-          // 2. القسم السفلي (البار السفلي الموحد)
-          Expanded(
-            flex: 3,
-            child: Container(
-              color: bgColor,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  InteractiveBottomButton(
-                    icon: Icons.leaderboard_rounded,
-                    label: "المتصدرين",
-                    onTap: () {},
-                  ),
-                  InteractiveBottomButton(
-                    icon: Icons.play_arrow_rounded,
-                    label: "الرئيسية",
-                    onTap: () {},
-                  ),
-                  InteractiveBottomButton(
-                    icon: Icons.bar_chart_rounded,
-                    label: "الإحصائيات",
-                    onTap: () {},
-                  ),
-                  InteractiveBottomButton(
-                    icon: Icons.settings_outlined,
-                    label: "الإعدادات",
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-// الودجت الفرعية كما هي مع التعديلات الطفيفة
+// --- الودجتس المساعدة ( OverviewCard, StatItem, DifficultyStatCard, NeobrutalistProgressBar ) ---
+
 class OverviewCard extends StatelessWidget {
   const OverviewCard({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -229,7 +181,6 @@ class StatItem extends StatelessWidget {
   final String label;
   final String value;
   const StatItem({super.key, required this.label, required this.value});
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -266,7 +217,6 @@ class DifficultyStatCard extends StatelessWidget {
     required this.count,
     required this.color,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -313,7 +263,6 @@ class NeobrutalistProgressBar extends StatelessWidget {
     required this.percentage,
     required this.barColor,
   });
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -353,73 +302,6 @@ class NeobrutalistProgressBar extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class InteractiveBottomButton extends StatefulWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  const InteractiveBottomButton({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  State<InteractiveBottomButton> createState() =>
-      _InteractiveBottomButtonState();
-}
-
-class _InteractiveBottomButtonState extends State<InteractiveBottomButton> {
-  bool isHovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color activeColor = isHovered
-        ? const Color(0xFF1E1E1E)
-        : Colors.white;
-    final Color contentColor = isHovered
-        ? Colors.white
-        : const Color(0xFF1E1E1E);
-
-    return GestureDetector(
-      onTapDown: (_) => setState(() => isHovered = true),
-      onTapUp: (_) {
-        setState(() => isHovered = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => isHovered = false),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            width: 75,
-            height: 75,
-            decoration: BoxDecoration(
-              color: activeColor,
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: const Color(0xFF1E1E1E), width: 2.5),
-            ),
-            padding: const EdgeInsets.all(4),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF1E1E1E), width: 2.5),
-              ),
-              child: Icon(widget.icon, color: contentColor, size: 35),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            widget.label,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
-          ),
-        ],
-      ),
     );
   }
 }
