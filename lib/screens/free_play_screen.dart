@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:turath_hackathon/data/words_data.dart';
+import 'package:turath_hackathon/models/heritage_word.dart';
 
 class FreePlayScreen extends StatefulWidget {
   const FreePlayScreen({super.key});
@@ -186,9 +188,36 @@ class _FreePlayScreenState extends State<FreePlayScreen> {
                                 isEnabled: canPlay,
                                 onTap: () {
                                   if (canPlay) {
-                                    print(
-                                      "جاري بدء اللعب بـ: $selectedRegion / $selectedDifficulty / عشوائي: $isRandomSelected",
-                                    );
+                                    HeritageWord? selectedWord;
+
+                                    if (isRandomSelected) {
+                                      selectedWord = WordsData.randomWord();
+                                    } else {
+                                      Region region = _mapStringToRegion(
+                                        selectedRegion!,
+                                      );
+                                      Difficulty difficulty =
+                                          _mapStringToDifficulty(
+                                            selectedDifficulty!,
+                                          );
+
+                                      selectedWord = WordsData.getNextWord(
+                                        selectedRegion: region,
+                                        selectedDifficulty: difficulty,
+                                      );
+                                    }
+
+                                    // 3. الانتقال لشاشة اللعب الفعلية مع الكلمة المختارة
+                                    if (selectedWord != null) {
+                                      // Navigator.push(
+                                      //   context,
+                                      //   MaterialPageRoute(
+                                      //     builder: (context) => GamePlayScreen(
+                                      //       word: selectedWord!,
+                                      //     ),
+                                      //   ),
+                                      // );
+                                    }
                                   }
                                 },
                               ),
@@ -206,6 +235,32 @@ class _FreePlayScreenState extends State<FreePlayScreen> {
         ),
       ),
     );
+  }
+
+  Region _mapStringToRegion(String regionStr) {
+    switch (regionStr) {
+      case "نجد":
+        return Region.najd;
+      case "الحجاز":
+        return Region.hejaz;
+      case "الجنوب":
+        return Region.south;
+      default:
+        return Region.najd;
+    }
+  }
+
+  Difficulty _mapStringToDifficulty(String diffStr) {
+    switch (diffStr) {
+      case "سهل":
+        return Difficulty.easy;
+      case "متوسط":
+        return Difficulty.medium;
+      case "صعب":
+        return Difficulty.hard;
+      default:
+        return Difficulty.easy;
+    }
   }
 }
 

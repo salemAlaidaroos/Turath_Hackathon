@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:turath_hackathon/screens/main_screen.dart';
-// import 'main_screen.dart'; // استورد شاشة المدير
+import 'services/notification_service.dart';
 
-void main() {
+void main() async {
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    await NotificationService.init();
+    await NotificationService.scheduleDailyChallenge();
+  } catch (e) {
+    debugPrint('⚠️ Notification init failed: $e');
+  }
+
   runApp(const MyApp());
 }
 
@@ -13,7 +23,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const MainScreen(), // هنا السحر! لازم تشغل MainScreen
+      home: const MainScreen(),
+      navigatorKey: navigatorKey, // هنا السحر! لازم تشغل MainScreen
     );
   }
 }
