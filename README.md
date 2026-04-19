@@ -1,16 +1,144 @@
-# turath_hackathon
 
-A new Flutter project.
+## نبذة عن المشروع
+مشروع "لبيب" هو تطبيق تعليمي ترفيهي تم تطويره ضمن فعاليات هاكاثون التراث، يهدف إلى إحياء المفردات اللغوية التراثية في مختلف مناطق المملكة العربية السعودية وربط الجيل الجديد بجذورهم الثقافية. يعتمد التطبيق على تقنيات الذكاء الاصطناعي لتحليل تخمينات اللاعبين وتقديم تقييم دقيق لمدى قرب المعنى المقترح من المعنى الأصلي للأدوات والقطع التراثية، مما يخلق تجربة تعلم تفاعلية وممتعة.
 
-## Getting Started
+## الميزات الرئيسية
+- نظام تقييم ذكي: استخدام نماذج لغوية متطورة لتحليل المرادفات اللغوية وتقديم نسبة مئوية للدقة.
+- حكم افتراضي تفاعلي: تقديم تغذية راجعة فورية بلهجة سعودية محلية تحاكي أسلوب التوجيه الشعبي مع مراعاة الأخطاء الإملائية.
+- واجهة مستخدم بهوية وطنية: تصميم يدمج بين نمط Neobrutalism الحديث ونقوش السدو التراثية.
+- قاعدة بيانات تراثية متنوعة: تغطية شاملة لمصطلحات من مناطق نجد، الحجاز، والجنوب مع شرح وافٍ لكل أداة.
+- تجربة مستخدم سلسة: توفير مسارات واضحة للعب، الاستسلام، أو التعرف على المعلومات عبر واجهة التلفاز القديم.
 
-This project is a starting point for a Flutter application.
+## التقنيات المستخدمة
+- الواجهة الأمامية (Frontend): Flutter Framework & Dart Language.
+- الواجهة البرمجية والخادم (Backend): Python & FastAPI.
+- نموذج الذكاء الاصطناعي (AI Model): Google Gemini API (Flash Lite Models).
 
-A few resources to get you started if this is your first Flutter project:
+## هيكلة الملفات
+تم تنظيم المشروع بحيث يحتوي المجلد الرئيسي على ملفات الواجهة الأمامية (Flutter) وملفات الخادم (Python) جنباً إلى جنب:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```text
+Turath_Hackathon/
+├── lib/                              # مجلد تطبيق Flutter الرئيسي
+│   ├── data/
+│   │   └── words_data.dart           # قاعدة بيانات الكلمات التراثية
+│   ├── models/
+│   │   ├── guess_request.dart        # نموذج هيكلة بيانات الطلب
+│   │   └── heritage_word.dart        # نموذج بيانات الكلمة التراثية
+│   ├── screens/                      # شاشات التطبيق
+│   │   ├── free_play_screen.dart
+│   │   ├── home_screen.dart
+│   │   ├── leaderboard_screen.dart
+│   │   ├── main_screen.dart
+│   │   ├── play_screen.dart
+│   │   ├── settings_screen.dart
+│   │   └── stats_screen.dart
+│   ├── services/                     # خدمات الربط (API Services)
+│   └── main.dart                     # نقطة البداية لتشغيل التطبيق
+├── .env                              # ملف تخزين مفاتيح الوصول (API Keys)
+├── main.py                           # الملف الأساسي لتشغيل خادم FastAPI
+└── test_models.py                    # يأداة لاختبار موديلات الذكاء الاصطناعي المتاحة
+```
+
+
+### 1. واجهة البداية وتخصيص تجربة اللعب
+تبدأ تجربة "لبيب" بشاشة دخول أنيقة تبرز الهوية البصرية الفريدة للتطبيق، تليها شاشة الإعدادات التي تمنح اللاعب كامل التحكم في تخصيص التحدي عبر اختيار المنطقة الجغرافية (نجد، الحجاز، الجنوب) وتحديد مستوى الصعوبة المطلوب.
+
+<table dir="rtl" align="right">
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/42e9a054-1685-42ac-a6d7-ca48fc2832aa" width="350" /></td>
+    <td><img src="https://github.com/user-attachments/assets/c813574b-fb27-4969-918f-e6511e92aca1" width="350" /></td>
+  </tr>
+</table>
+
+<br clear="right"/><br/>
+
+### 2. تجربة اللعب والتوجيه الذكي
+في قلب اللعبة، يكتب اللاعب تخميناته لمعنى الكلمة التراثية (مثل كلمة "الجونة"). يقوم "الحكم الذكي" بتحليل الإجابة فوراً، ويعطي نسبة مئوية لمدى دقتها مع تعليق وتلميح بلهجة شعبية لتوجيه اللاعب. وعند الوصول للإجابة الصحيحة (أو الاستسلام)، تظهر نافذة "التلفاز التراثي" لتعرض معلومات تاريخية وقصصية قيمة عن الأداة واستخداماتها الأصلية.
+
+<table dir="rtl" align="right">
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/2cf1f960-ccb4-4b4f-9a3b-9a0aed7014c7" width="350" /></td>
+     <td><img src="https://github.com/user-attachments/assets/a8b59acc-d9cb-4cd0-bfe3-a740d127116e" width="350" /></td>
+  </tr>
+</table>
+
+<br clear="right"/><br/>
+
+
+
+
+### 3. متابعة الأداء، التحدي، والإعدادات
+يوفر "لبيب" لوحة تحكم متكاملة لمتابعة أداء اللاعب، حيث تعرض شاشة "الإحصائيات" تفاصيل دقيقة حول نسبة الفوز وإتقان مفردات كل منطقة. كما تزيد شاشة "المتصدرين" من روح المنافسة والتحدي بين اللاعبين. وأخيراً، تتيح شاشة "الإعدادات" سهولة التحكم بالملف الشخصي وتفضيلات التطبيق للوصول إلى تجربة مستخدم مثالية.
+
+<table dir="rtl" align="right">
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/89f7f6f4-37b2-44e7-8d7e-6b1967b86c1c" width="250" /></td>
+    <td><img src="https://github.com/user-attachments/assets/31bc7acf-4f0c-447a-9cd4-59796ed4c985" width="250" /></td>
+    <td><img src="https://github.com/user-attachments/assets/c2c15b23-4446-49e6-b4ad-4a55eeff5633" width="250" /></td>
+  </tr>
+</table>
+
+<br clear="right"/><br/>
+
+---
+
+
+
+
+
+
+
+---
+
+
+
+
+
+## طريقة التشغيل
+
+### 1. إعداد وتشغيل الخادم (Backend)
+تأكد من تواجدك في المجلد الرئيسي للمشروع، ثم نفذ الخطوات التالية:
+
+1. قم بتثبيت المكتبات اللازمة عبر موجه الأوامر:
+   ```bash
+   pip install fastapi uvicorn google-generativeai python-dotenv pydantic
+'''
+2. تأكد من إضافة مفتاح Gemini API الخاص بك داخل ملف `.env`:
+   ```text
+   GEMINI_API_KEY=your_api_key_here
+```
+3. قم بتشغيل خادم البايثون:
+   ```bash
+   python main.py
+   ```
+
+   ### 2. إعداد وتشغيل التطبيق (Frontend)
+1. تأكد من تثبيت بيئة Flutter على جهازك.
+2. قم بتحميل الاعتماديات الخاصة بالمشروع:
+   ```bash
+   flutter pub get
+   ```
+
+
+   3. تأكد من تشغيل المحاكي (Emulator) أو توصيل جهازك الفعلي.
+4. قم بتشغيل التطبيق:
+   ```bash
+   flutter run
+   ```
+## فريق العمل
+تم تطوير وإنجاز هذا المشروع بجهود الفريق:
+
+ **سالم**
+  * مسؤول عن تصميم واجهات التطبيق.
+  * برمجة جميع واجهات التطبيق وتنفيذها باستخدام Flutter.
+  * الربط بين الـ Frontend والـ Backend.
+
+ **عبد العزيز**
+  * مسؤول عن بناء الـ backend عن طريق FastAPI.
+  * إدماج ميزة الذكاء الاصطناعي في التطبيق.
+  * بناء ميزة الإشعارات في التطبيق.
+
+
+
