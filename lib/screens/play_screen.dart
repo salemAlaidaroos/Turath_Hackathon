@@ -1,5 +1,10 @@
+// نافذة الخروج
 import 'package:flutter/material.dart';
-import 'dart:math'; // نحتاجه عشان نولد نسبة عشوائية
+import 'dart:math';
+
+import '../models/heritage_word.dart';
+import '../data/words_data.dart';
+import '../services/api_service.dart';
 
 class PlayScreen extends StatefulWidget {
   const PlayScreen({super.key});
@@ -13,23 +18,24 @@ class _PlayScreenState extends State<PlayScreen> {
   final Color textColor = const Color(0xFF1E1E1E);
   final TextEditingController _wordController = TextEditingController();
 
-  // ==========================================
-  // متغيرات اللعبة واللوجك
-  // ==========================================
   int attempts = 0;
   List<Map<String, dynamic>> guesses = [];
+  bool isLoading = false;
 
-  // الكلمة المخفية ومعناها
-  final String targetWord = "خيمة";
-  final String targetMeaning =
-      "بيت من الشَّعر أو القماش، يُنصب في الصحراء للوقاية من الشمس والبرد.";
+  late HeritageWord currentWord;
+  final ApiService _apiService = ApiService();
+
+  @override
+  void initState() {
+    super.initState();
+    currentWord = WordsData.randomWord();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // 1. خلفية البورد
           Positioned.fill(
             child: Transform.scale(
               scale: 1.15,
@@ -42,15 +48,12 @@ class _PlayScreenState extends State<PlayScreen> {
               ),
             ),
           ),
-
-          // 2. المحتوى الأساسي
           Positioned.fill(
             child: SafeArea(
               child: Directionality(
                 textDirection: TextDirection.rtl,
                 child: Column(
                   children: [
-                    // --- زر الرجوع ---
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
@@ -66,8 +69,6 @@ class _PlayScreenState extends State<PlayScreen> {
                         ),
                       ),
                     ),
-
-                    // --- بانر الكلمة الهدف (الجديد) ---
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Container(
@@ -87,7 +88,7 @@ class _PlayScreenState extends State<PlayScreen> {
                         child: Column(
                           children: [
                             Text(
-                              "كلمتك هيا: ",
+                              "أوجد مرادف أو معنى كلمة: ",
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -96,7 +97,7 @@ class _PlayScreenState extends State<PlayScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              targetWord,
+                              currentWord.word,
                               style: const TextStyle(
                                 fontSize: 32,
                                 fontWeight: FontWeight.w900,
@@ -107,10 +108,7 @@ class _PlayScreenState extends State<PlayScreen> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 15),
-
-                    // --- منطقة الإدخال (التيكست فيلد والكاونتر) ---
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Row(
@@ -121,10 +119,7 @@ class _PlayScreenState extends State<PlayScreen> {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
-                    // --- قائمة التخمينات ---
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -139,83 +134,86 @@ class _PlayScreenState extends State<PlayScreen> {
                               word: guess['word'],
                               score: guess['score'],
                               barColor: guess['color'],
+                              feedback: guess['feedback'],
                             );
                           },
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
-                    // --- منطقة الأزرار (الهنت والسبمنت) ---
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // زر الهنت
+                          // تم تحويله لزر استسلام 🏳️
                           actionSquareButton(
-                            icon: Icons.lightbulb_outline,
-                            isHint: true,
+                            icon: Icons.flag_outlined,
+                            isHint: false,
                             onTap: () {
-                              print("Hint clicked");
-                              // هنا ممكن نبرمج التلميح بعدين
+                              _showTVWinDialog(context, isSurrender: true);
                             },
                           ),
                           const SizedBox(width: 20),
-                          // زر السبمنت (برمجنا فيه اللوجك)
-                          actionSquareButton(
-                            icon: Icons.arrow_back_rounded,
-                            isHint: false,
-                            isLarge: true,
-                            onTap: () {
-                              String typedWord = _wordController.text.trim();
-                              if (typedWord.isNotEmpty) {
-                                // هل الكلمة صحيحة؟
-                                if (typedWord == targetWord) {
-                                  _showTVWinDialog(context); // شغل التلفزيون!
-                                } else {
-                                  // إذا غلط، احسب نسبة وهمية وضيفها للستة
-                                  setState(() {
-                                    attempts++;
+                          isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Color(0xFF1E1E1E),
+                                )
+                              : actionSquareButton(
+                                  icon: Icons.arrow_back_rounded,
+                                  isHint: false,
+                                  isLarge: true,
+                                  onTap: () async {
+                                    String typedWord = _wordController.text
+                                        .trim();
+                                    if (typedWord.isNotEmpty) {
+                                      setState(() {
+                                        isLoading = true;
+                                      });
+                                      final aiResponse = await _apiService
+                                          .analyzeExplanation(
+                                            wordData: currentWord,
+                                            userExplanation: typedWord,
+                                          );
+                                      setState(() {
+                                        isLoading = false;
+                                        attempts++;
+                                        int percentage =
+                                            aiResponse['percentage'] ?? 0;
+                                        String feedback =
+                                            aiResponse['feedback'] ??
+                                            "كفو حاول ثاني";
 
-                                    // توليد نسبة عشوائية (كمثال)
-                                    double randomScore =
-                                        (10 + Random().nextInt(85)) / 100.0;
-
-                                    // تحديد اللون بناءً على النسبة
-                                    Color barColor;
-                                    if (randomScore >= 0.70) {
-                                      barColor = const Color(
-                                        0xFF4CAF50,
-                                      ); // أخضر
-                                    } else if (randomScore >= 0.40) {
-                                      barColor = const Color(
-                                        0xFFFF9800,
-                                      ); // برتقالي
-                                    } else {
-                                      barColor = const Color(
-                                        0xFFFF1744,
-                                      ); // أحمر
+                                        if (percentage == 100) {
+                                          _showTVWinDialog(
+                                            context,
+                                            isSurrender: false,
+                                          );
+                                        } else {
+                                          double score = percentage / 100.0;
+                                          Color barColor;
+                                          if (score >= 0.70) {
+                                            barColor = const Color(0xFF4CAF50);
+                                          } else if (score >= 0.40) {
+                                            barColor = const Color(0xFFFF9800);
+                                          } else {
+                                            barColor = const Color(0xFFFF1744);
+                                          }
+                                          guesses.insert(0, {
+                                            'word': typedWord,
+                                            'score': score,
+                                            'color': barColor,
+                                            'feedback': feedback,
+                                          });
+                                          _wordController.clear();
+                                        }
+                                      });
                                     }
-
-                                    // إضافة الكلمة في بداية اللستة (عشان تطلع فوق)
-                                    guesses.insert(0, {
-                                      'word': typedWord,
-                                      'score': randomScore,
-                                      'color': barColor,
-                                    });
-
-                                    _wordController.clear();
-                                  });
-                                }
-                              }
-                            },
-                          ),
+                                  },
+                                ),
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -227,26 +225,14 @@ class _PlayScreenState extends State<PlayScreen> {
     );
   }
 
-  // ==========================================
-  // نافذة الفوز (التلفزيون 📺)
-  // ==========================================
-  // ==========================================
-  // دالة شاشة الفوز (التلفزيون 📺) المحدثة
-  // ==========================================
-  // ==========================================
-  // دالة شاشة الفوز (التلفزيون 📺) المحدثة
-  // ==========================================
-  void _showTVWinDialog(BuildContext context) {
-    // تعريف مفصل للكلمة الهدف "خيمة"
-    final String definitionText =
-        "$targetWord هي مسكن تقليدي يعود تاريخه إلى العصور النبطية في شبه الجزيرة العربية. يصنع من شَعْر الحيوانات أو القماش، ويُنصب ليكون ملاذاً مؤقتاً يحمي ساكنيه من قسوة الصحراء، بين شمسها المحرقة وبردها القارس.";
-
+  // دالة التلفزيون المعدلة (ضبط الوزن والشفافية والاستسلام)
+  void _showTVWinDialog(BuildContext context, {required bool isSurrender}) {
     showDialog(
       context: context,
-      barrierDismissible: false, // يمنع إغلاق الشاشة لو ضغط برا
+      barrierDismissible: false,
       builder: (context) {
         return Dialog(
-          backgroundColor: Colors.transparent, // شفاف عشان التلفزيون يبرز
+          backgroundColor: Colors.transparent,
           elevation: 0,
           child: SizedBox(
             height: 400,
@@ -254,97 +240,86 @@ class _PlayScreenState extends State<PlayScreen> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // 1. صورة التلفزيون (الإطار)
-                Image.asset(
-                  'assets/images/tv.png', // تأكد من المسار
-                  fit: BoxFit.contain,
-                ),
-
-                // 2. طبقة سوداء خلفية تحاكي الشاشة الحقيقية
+                Image.asset('assets/images/tv.png', fit: BoxFit.contain),
+                // تعديل الوزنية والشفافية للشاشة السوداء
                 Positioned(
-                  top: 50, // نوزنها لتكون داخل الشاشة
-                  bottom: 110, // نبعد عن الأزرار
-                  left: 30,
-                  right: 30,
+                  top: 60, // تم تنزيله قليلاً ليطابق الإطار
+                  bottom: 125, // تم رفعه قليلاً
+                  left: 35,
+                  right: 35,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(
-                        0.85,
-                      ), // طبقة سوداء شبه شفافة
-                      borderRadius: BorderRadius.circular(
-                        5,
-                      ), // انحناء بسيط ليطابق الشاشة
+                      color: Colors.black.withOpacity(0.65), // جعلها شفافة أكثر
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                 ),
-
-                // 3. المحتوى فوق الطبقة السوداء
                 Positioned(
-                  top: 50,
-                  bottom: 110,
-                  left: 30,
-                  right: 30,
+                  top: 60,
+                  bottom: 125,
+                  left: 35,
+                  right: 35,
                   child: Directionality(
                     textDirection: TextDirection.rtl,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          "مبرووك! ",
-                          style: TextStyle(
-                            fontSize: 22,
+                        Text(
+                          isSurrender ? "تعوّضها الجايات! 🏳️" : "مبرووك! 🎉",
+                          style: const TextStyle(
+                            fontSize: 18,
                             fontWeight: FontWeight.w900,
-                            color: Colors
-                                .white, // نص أبيض ليتناسب مع الخلفية السوداء
+                            color: Colors.white,
                           ),
                         ),
                         Text(
-                          targetWord,
+                          currentWord.word,
                           style: const TextStyle(
-                            fontSize: 35,
+                            fontSize: 32,
                             fontWeight: FontWeight.w900,
                             color: Colors.white,
                           ),
                         ),
                         const SizedBox(height: 5),
-                        Text(
-                          definitionText,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            currentWord.description,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 12, // تصغير بسيط ليناسب المساحة الجديدة
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 15),
-                        // زر العب مرة أخرى
+                        const SizedBox(height: 10),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                primaryYellow, // نستخدم اللون الأصفر المعتمد
+                            backgroundColor: primaryYellow,
                             side: BorderSide(color: textColor, width: 2.5),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 8,
+                              horizontal: 15,
+                              vertical: 5,
                             ),
                             elevation: 0,
                           ),
                           onPressed: () {
-                            // تصفير اللعبة وإغلاق التلفزيون
                             setState(() {
                               attempts = 0;
                               guesses.clear();
                               _wordController.clear();
+                              currentWord = WordsData.randomWord();
                             });
                             Navigator.pop(context);
                           },
                           child: Text(
-                            "العب مرة أخرى",
+                            "كلمة جديدة",
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 14,
                               fontWeight: FontWeight.w900,
                               color: textColor,
                             ),
@@ -362,7 +337,6 @@ class _PlayScreenState extends State<PlayScreen> {
     );
   }
 
-  // نافذة الخروج
   void _showExitConfirmation(BuildContext context) {
     showDialog(
       context: context,
@@ -435,20 +409,24 @@ class _PlayScreenState extends State<PlayScreen> {
   }
 }
 
+// الباقي من الودجتس (NeobrutalistGuessCard, InputTextField, إلخ) يبقى كما هو دون تغيير.
+
 // ---------------------------------------------------------
-// الودجتس الفرعية
+// الودجتس الفرعية المحدثة
 // ---------------------------------------------------------
 
 class NeobrutalistGuessCard extends StatelessWidget {
   final String word;
   final double score;
   final Color barColor;
+  final String feedback; // التعليق الجديد من الذكاء الاصطناعي
 
   const NeobrutalistGuessCard({
     super.key,
     required this.word,
     required this.score,
     required this.barColor,
+    required this.feedback,
   });
 
   @override
@@ -464,6 +442,7 @@ class NeobrutalistGuessCard extends StatelessWidget {
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -504,6 +483,16 @@ class NeobrutalistGuessCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
               ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          // عرض تعليق جيمناي تحت البار
+          Text(
+            feedback,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade800,
             ),
           ),
         ],
@@ -554,12 +543,9 @@ class InputTextField extends StatelessWidget {
       ),
       child: TextField(
         controller: controller,
-        // =====================================
-        // الأسطر الثلاثة الجديدة لحل مشكلة العربي
         textAlign: TextAlign.right,
         textDirection: TextDirection.rtl,
         keyboardType: TextInputType.text,
-        // =====================================
         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
         decoration: InputDecoration(
           hintText: "اكتب كلمتك...",

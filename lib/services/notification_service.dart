@@ -13,9 +13,7 @@ class NotificationService {
 
   static Future<void> init() async {
     tz.initializeTimeZones();
-    tz.setLocalLocation(
-      tz.getLocation('Asia/Riyadh'),
-    ); 
+    tz.setLocalLocation(tz.getLocation('Asia/Riyadh'));
 
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -47,7 +45,9 @@ class NotificationService {
 
     // طلب إذن الإشعارات (Android 13+) وإذن المنبهات الدقيقة (Android 12+)
     final androidPlugin = _notificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (androidPlugin != null) {
       await androidPlugin.requestNotificationsPermission();
       await androidPlugin.requestExactAlarmsPermission();
@@ -86,7 +86,10 @@ class NotificationService {
       id: 10,
       title: 'تحدي اليومي نزل يا ذيب!',
       body: 'كلمة اليوم من الجنوب وصعوبتها (صعب) 🏔️.. تقدر تكسر الرقم؟',
-      scheduledDate: _nextInstanceOfTime(20, 5), // مبرمجة على الساعة 7:55 مساءً للتجربة
+      scheduledDate: _nextInstanceOfTime(
+        20,
+        5,
+      ), // مبرمجة على الساعة 7:55 مساءً للتجربة
       notificationDetails: const NotificationDetails(android: androidDetails),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents:

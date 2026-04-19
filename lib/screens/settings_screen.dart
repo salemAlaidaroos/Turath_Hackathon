@@ -37,13 +37,6 @@ class SettingsScreen extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 // زر الرجوع (يسار)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: NeobrutalistBackButton(
-                    onTap: () => Navigator.pop(context),
-                  ),
-                ),
-
                 const SizedBox(height: 10),
 
                 // محتوى الإعدادات داخل قائمة

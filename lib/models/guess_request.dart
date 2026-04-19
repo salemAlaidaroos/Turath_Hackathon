@@ -1,7 +1,8 @@
 class GuessRequest {
-  final String userExplanation;
-  final String targetWord;
-  final String correctMeaning;
+  final String userExplanation; // اللي كتبه اليوزر في التيكست فيلد
+  final String targetWord; // الكلمة التراثية المعروضة
+  final String
+  correctMeaning; // نمرر له هنا الـ targetMeaning (عشان جيمناي يقارن بينهم)
 
   GuessRequest({
     required this.userExplanation,

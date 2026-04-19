@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:turath_hackathon/data/words_data.dart';
 import 'package:turath_hackathon/models/heritage_word.dart';
+import 'package:turath_hackathon/screens/play_screen.dart';
 
 class FreePlayScreen extends StatefulWidget {
   const FreePlayScreen({super.key});
@@ -441,20 +442,25 @@ class _NeobrutalistBackButtonState extends State<NeobrutalistBackButton> {
 class PlaySquareButton extends StatefulWidget {
   final bool isEnabled;
   final VoidCallback onTap;
+
   const PlaySquareButton({
     super.key,
     required this.isEnabled,
     required this.onTap,
   });
+
   @override
   State<PlaySquareButton> createState() => _PlaySquareButtonState();
 }
 
 class _PlaySquareButtonState extends State<PlaySquareButton> {
   bool isPressed = false;
+
   @override
   Widget build(BuildContext context) {
+    // الزر يصبح "مسطح" (بدون ظل) إذا كان مضغوطاً أو معطلاً
     bool isFlat = isPressed || !widget.isEnabled;
+
     return GestureDetector(
       onTapDown: (_) {
         if (widget.isEnabled) setState(() => isPressed = true);
@@ -462,7 +468,15 @@ class _PlaySquareButtonState extends State<PlaySquareButton> {
       onTapUp: (_) {
         if (widget.isEnabled) {
           setState(() => isPressed = false);
+
+          // 1. تنفيذ أي أكواد إضافية مررناها للزر
           widget.onTap();
+
+          // 2. الانتقال العادي لشاشة اللعب
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PlayScreen()),
+          );
         }
       },
       onTapCancel: () {
@@ -472,9 +486,10 @@ class _PlaySquareButtonState extends State<PlaySquareButton> {
         duration: const Duration(milliseconds: 100),
         width: 140,
         height: 140,
+        // تحريك الزر للأسفل قليلاً عند الضغط لمحاكاة الضغطة الحقيقية
         transform: Matrix4.translationValues(isFlat ? 6 : 0, isFlat ? 6 : 0, 0),
         decoration: BoxDecoration(
-          color: const Color(0xFF800000),
+          color: const Color(0xFF800000), // اللون العنابي الفخم
           borderRadius: BorderRadius.circular(35),
           border: Border.all(color: const Color(0xFF1E1E1E), width: 3.5),
           boxShadow: isFlat

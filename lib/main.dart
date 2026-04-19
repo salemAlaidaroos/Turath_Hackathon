@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:turath_hackathon/screens/leaderboard_screen.dart';
 import 'package:turath_hackathon/screens/main_screen.dart';
+import 'package:turath_hackathon/screens/play_screen.dart';
 import 'services/notification_service.dart';
 
 void main() async {

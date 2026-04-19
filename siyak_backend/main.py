@@ -1,7 +1,6 @@
 import os
 import json
-import re
-import requests
+import google.generativeai as genai
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -9,9 +8,25 @@ from dotenv import load_dotenv
 load_dotenv()
 app = FastAPI()
 
-# إعدادات Groq
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-URL = "https://api.groq.com/openai/v1/chat/completions"
+# إعدادات Gemini
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key=GEMINI_API_KEY)
+
+generation_config = {
+    "temperature": 0.7,
+    "response_mime_type": "application/json", 
+}
+
+# =========================================================
+# التعديل هنا: استخدمنا gemini-1.5-flash-latest لضمان الاستجابة
+# =========================================================
+# استبدل سطر الـ model بهذا الكود
+model = genai.GenerativeModel(
+    # استخدمنا النسخة الخفيفة (الطلقة) عشان السرعة وما يعطيك 429
+    model_name="models/gemini-flash-lite-latest", 
+    generation_config=generation_config,
+    system_instruction="أنت حكم لغوي وصعب الإرضاء في لعبة تراثية سعودية..." # خلك على نفس البرومبت الأخير
+)
 
 class GuessRequest(BaseModel):
     user_explanation: str
@@ -21,54 +36,45 @@ class GuessRequest(BaseModel):
 @app.post("/analyze")
 async def analyze_meaning(request: GuessRequest):
     
-    # البرومبت المحدث لتعزيز اللهجة السعودية والروح الشعبية
+    # ==========================================
+    # التعديل الجوهري هنا: هندسة الأوامر (Prompt Engineering) لضبط الحكم
+    # ==========================================
+   # ==========================================
+    # التعديل الصارم جداً لمنع "الحرق" نهائياً
+    # ==========================================
+    # ==========================================
+    # التعديل الجديد: رفع مستوى الصعوبة ومنع التلميح السهل
+    # ==========================================
+    # ==========================================
+    # البرومبت المعضل: قوانين صارمة للتقييم، الإملاء، والكلمات العامة
+    # ==========================================
     prompt = f"""
-    يا خبيرنا، نبيك تقيم شرح خوينا للكلمة التراثية هذي.
-    الكلمة: {request.target_word}
-    المعنى الحقيقي: {request.correct_meaning}
-    شرح المستخدم: {request.user_explanation}
-    
-    المطلوب منك:
-    1- تقيم النسبة المئوية لقرب الشرح من المعنى الحقيقي.
-    2- تكتب تعليق (feedback) بلهجة سعودية بيضاء وشعبية (مثلاً: "جبتها يا ذيب"، "حولها وحواليها"، "ما غبت عنها يا شقردي"، "يبيلك شوية تركيز").
-    
-    ردك لازم يكون JSON فقط بهذا الشكل:
-    {{"percentage": 85, "feedback": "نص التعليق باللهجة السعودية"}}
-    """
+أنت محرك تقييم ذكي وسريع للعبة كلمات تعتمد على الترابط السياقي (مثل Contexto).
+الهدف: "{request.correct_meaning}"
+تخمين اللاعب: "{request.user_explanation}"
 
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
+احسب نسبة الترابط (0-100) بناءً على الوظيفة، البيئة، والاستخدام المتبادل، وليس المترادفات فقط! (مثال: "غلاية" و"ماء" ترابطهما عالي 60-70% لارتباطهما الوظيفي المباشر).
 
-    payload = {
-        "model": "llama-3.3-70b-versatile",
-        "messages": [
-            {
-                "role": "system", 
-                "content": "أنت خبير لغوي في اللهجات السعودية والتراث الشعبي السعودي. كلامك دايم شعبي، مشجع، ومليان بالعبارات السعودية المعروفة."
-            },
-            {"role": "user", "content": prompt}
-        ],
-        "response_format": {"type": "json_object"},
-        "temperature": 0.7 # رفعنا الـ temperature شوي عشان يعطي تنوع في الكلمات السعودية وما يكرر نفسه
-    }
+قواعد صارمة:
+1. تطابق أو خطأ إملائي بسيط = 100.
+2. ترابط وظيفي/بيئي (يستخدمان معاً) = 40 إلى 75.
+3. مرادف شبه دقيق = 80 إلى 99.
+4. لا تكتب الكلمة الهدف في التعليق أبداً إلا إذا جاب 100.
+
+أرجع JSON فقط وحصرياً بهذا الشكل، وبدون أي نصوص قبله أو بعده:
+{{"percentage": 85, "feedback": "تعليق سعودي قصير جداً ومناسب للنسبة"}}
+"""
 
     try:
-        response = requests.post(URL, headers=headers, json=payload)
-        
-        if response.status_code != 200:
-            return {"percentage": 0, "feedback": "علق السيرفر يا غالي، جرب مرة ثانية."}
-
-        res_data = response.json()
-        content = res_data['choices'][0]['message']['content']
-        
-        return json.loads(content)
+        response = model.generate_content(prompt)
+        # تحويل الرد لنص ثم لـ JSON
+        return json.loads(response.text)
 
     except Exception as e:
         print(f"Error: {str(e)}")
-        raise HTTPException(status_code=500, detail="فشل الاتصال بـ Groq")
+        raise HTTPException(status_code=500, detail="فشل الاتصال بـ Gemini")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # تأكد إنك شغال على localhost عشان المحاكي يلقط السيرفر
+    uvicorn.run(app, host="127.0.0.1", port=8000)

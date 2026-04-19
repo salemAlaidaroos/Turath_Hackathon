@@ -50,17 +50,12 @@ class _MainScreenState extends State<MainScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     InteractiveBottomButton(
-                      icon: Icons.leaderboard_rounded,
-                      label: "المتصدرين",
-                      isActive: currentIndex == 0,
-                      onTap: () => setState(() => currentIndex = 0),
+                      icon: Icons.settings_outlined,
+                      label: "الإعدادات",
+                      isActive: currentIndex == 3,
+                      onTap: () => setState(() => currentIndex = 3),
                     ),
-                    InteractiveBottomButton(
-                      icon: Icons.play_arrow_rounded,
-                      label: "الرئيسية",
-                      isActive: currentIndex == 1,
-                      onTap: () => setState(() => currentIndex = 1),
-                    ),
+
                     InteractiveBottomButton(
                       icon: Icons.bar_chart_rounded,
                       label: "الإحصائيات",
@@ -68,10 +63,17 @@ class _MainScreenState extends State<MainScreen> {
                       onTap: () => setState(() => currentIndex = 2),
                     ),
                     InteractiveBottomButton(
-                      icon: Icons.settings_outlined,
-                      label: "الإعدادات",
-                      isActive: currentIndex == 3,
-                      onTap: () => setState(() => currentIndex = 3),
+                      icon: Icons.leaderboard_rounded,
+                      label: "المتصدرين",
+                      isActive: currentIndex == 0,
+                      onTap: () => setState(() => currentIndex = 0),
+                    ),
+
+                    InteractiveBottomButton(
+                      icon: Icons.play_arrow_rounded,
+                      label: "الرئيسية",
+                      isActive: currentIndex == 1,
+                      onTap: () => setState(() => currentIndex = 1),
                     ),
                   ],
                 ),
